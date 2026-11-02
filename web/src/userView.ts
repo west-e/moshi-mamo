@@ -1,6 +1,7 @@
 import type { AlertLevel } from "../../shared/display.ts";
 import type { AssessResponse, Level, SignalType } from "../../shared/types.ts";
 
+// 「電話を 切っても 大丈夫」は、電話を切らせてもらえず確かめられなかった制作者の祖母の体験から加えた（docs/impact.md）。
 // 利用者画面に出すのは、ここにある検証済みの定型文だけ。
 // モデルが生成した文章は利用者画面に出さない（短く保つため、会話中の命令文が画面に届かないようにするため）。
 
@@ -70,7 +71,7 @@ export function faceOf(view: UserView): Face {
     return {
       tone: "warning",
       headline: "詐欺の おそれが あります",
-      lines: [...hint(view.topSignal), "電話を 切って 家族か #9110 に 相談を"],
+      lines: [...hint(view.topSignal), "電話を 切っても 大丈夫", "家族か #9110 に 相談を"],
       note: stopped,
     };
   }
@@ -78,7 +79,7 @@ export function faceOf(view: UserView): Face {
     return {
       tone: "caution",
       headline: "ちょっと 待って",
-      lines: [...hint(view.topSignal), "いったん 電話を 切って 家族に 確かめましょう"],
+      lines: [...hint(view.topSignal), "電話を 切っても 大丈夫", "家族に 確かめてから 決めましょう"],
       note: stopped,
     };
   }

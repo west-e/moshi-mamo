@@ -29,8 +29,8 @@ function tone(freq: number, start: number, duration: number, gain = 0.25) {
 }
 
 const SPOKEN: Record<"caution" | "warning", string> = {
-  caution: "ちょっと待ってください。すぐに決めずに、いったん電話を切って確かめましょう。",
-  warning: "詐欺のおそれがあります。お金やカードは渡さず、電話を切って家族に相談してください。",
+  caution: "ちょっと待ってください。電話を切っても大丈夫です。家族に確かめてから決めましょう。",
+  warning: "詐欺のおそれがあります。電話を切っても大丈夫です。お金やカードは渡さず、家族に相談してください。",
 };
 
 export function playAlert(level: Exclude<AlertLevel, "none">, speak: boolean) {

@@ -12,3 +12,9 @@ dist/
 *.flac
 # 評価の生ログ（要約はdocs/に手で残す）
 eval/results/
+
+# ローカル文字起こし（Python）の仮想環境
+.venv/
+__pycache__/
+# 架空の通話音声の出力先（scripts/make-fake-call.ps1 で再生成できる）
+audio/

@@ -1,0 +1,8 @@
+# ローカル文字起こし（stt/server.py）用。動作確認した版を固定している。
+# python -m venv .venv && .venv/Scripts/python -m pip install -r stt/requirements.txt
+faster-whisper==1.2.1
+ctranslate2==4.8.4
+numpy==2.5.4
+# NVIDIA GPU で動かす場合（なければ CPU で動く）
+nvidia-cublas-cu12==12.9.2.10
+nvidia-cudnn-cu12==9.27.0.42

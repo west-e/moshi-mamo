@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Speaker, Utterance } from "../../shared/types.ts";
+import { AudioControls } from "./AudioControls.tsx";
 import type { CallSession, Fault } from "./useCallSession.ts";
 
 type Scenario = { id: string; title: string; utterances: Omit<Utterance, "id">[] };
@@ -27,9 +28,15 @@ export function DevPanel({ session }: { session: CallSession }) {
   const [text, setText] = useState("");
   const [autoplay, setAutoplay] = useState(false);
 
+  // 判定サーバーの起動が画面より遅れることがあるので、つながるまで数秒おきに確かめる
   useEffect(() => {
-    fetch("/api/info").then((r) => r.json()).then(setInfo).catch(() => setInfo(null));
-    fetch("/api/scenarios").then((r) => r.json()).then(setScenarios).catch(() => setScenarios([]));
+    let timer: ReturnType<typeof setTimeout>;
+    const load = () =>
+      Promise.all([fetch("/api/info").then((r) => r.json()), fetch("/api/scenarios").then((r) => r.json())])
+        .then(([i, s]) => { setInfo(i); setScenarios(s); })
+        .catch(() => { setInfo(null); timer = setTimeout(load, 3000); });
+    void load();
+    return () => clearTimeout(timer);
   }, []);
 
   const scenario = scenarios.find((s) => s.id === scenarioId);
@@ -57,7 +64,7 @@ export function DevPanel({ session }: { session: CallSession }) {
     <section className="dev-panel">
       <header className="dev-header">
         <strong>開発・デモ画面</strong>
-        <span className="mock-badge">模擬入力（電話機・録音アダプター未接続）</span>
+        <span className="mock-badge">電話機・録音アダプター未接続（模擬入力・架空の音声・マイクのみ）</span>
         <span className="dev-meta">
           {info ? `model: ${info.model} / APIキー: ${info.keyConfigured ? "設定済み" : "未設定"}` : "判定サーバー未接続"}
         </span>
@@ -99,6 +106,8 @@ export function DevPanel({ session }: { session: CallSession }) {
         <button type="submit" disabled={!text.trim()}>追加</button>
       </form>
 
+      <AudioControls session={session} />
+
       <div className="dev-grid">
         <div>
           <h3>文字起こし（判定に渡した発話）</h3>
@@ -129,7 +138,7 @@ export function DevPanel({ session }: { session: CallSession }) {
           </p>
           <table className="timeline">
             <thead>
-              <tr><th>#</th><th>発話</th><th>判定</th><th>兆候</th><th>サーバー</th><th>往復</th></tr>
+              <tr><th>#</th><th>発話</th><th>判定</th><th>兆候</th><th>文字起こし</th><th>判定</th><th>話し終わり→表示</th></tr>
             </thead>
             <tbody>
               {[...entries].reverse().map((e) => {
@@ -144,8 +153,9 @@ export function DevPanel({ session }: { session: CallSession }) {
                         : `失敗: ${r?.message}`}
                     </td>
                     <td>{r?.ok ? r.assessment.signals.map((s) => SIGNAL_LABEL[s.type]).join("・") : ""}</td>
-                    <td>{r ? `${(r.latencyMs / 1000).toFixed(1)}s` : ""}</td>
+                    <td>{e.sttMs !== undefined ? `${(e.sttMs / 1000).toFixed(1)}s` : ""}</td>
                     <td>{e.roundTripMs !== undefined ? `${(e.roundTripMs / 1000).toFixed(1)}s` : ""}</td>
+                    <td>{e.totalMs !== undefined ? `${(e.totalMs / 1000).toFixed(1)}s` : ""}</td>
                   </tr>
                 );
               })}

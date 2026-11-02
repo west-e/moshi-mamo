@@ -11,7 +11,12 @@ export type Entry = {
   status: "pending" | "done";
   response?: AssessResponse;
   roundTripMs?: number;
+  sttMs?: number; // 音声入力のとき: 文字起こしにかかった時間
+  totalMs?: number; // 音声入力のとき: 話し終わりから判定が届くまで
 };
+
+// 音声入力から来た発話の計測値
+export type AudioMeta = { sttMs: number; speechEndedAt: number };
 
 export const VIEW_CHANNEL = "moshi-mamo-view";
 
@@ -25,16 +30,16 @@ export function useCallSession() {
   const utterancesRef = useRef<Utterance[]>([]);
 
   const addUtterance = useCallback(
-    (speaker: Speaker, text: string) => {
+    (speaker: Speaker, text: string, audio?: AudioMeta) => {
       const trimmed = text.trim();
       if (!trimmed) return;
       const generation = generationRef.current;
       const seq = ++seqRef.current;
       const prev = utterancesRef.current;
-      const next = [...prev, { id: prev.length + 1, speaker, text: trimmed }];
+      const next = [...prev, { id: prev.length + 1, speaker, text: trimmed.slice(0, 500) }];
       utterancesRef.current = next;
       setUtterances(next);
-      setEntries((es) => [...es, { seq, uttCount: next.length, status: "pending" }]);
+      setEntries((es) => [...es, { seq, uttCount: next.length, status: "pending", sttMs: audio?.sttMs }]);
       void request(next, seq, generation);
 
       async function request(snapshot: Utterance[], seq: number, generation: number) {
@@ -53,8 +58,10 @@ export function useCallSession() {
           response = { ok: false, kind: "network", message: "判定サーバーに接続できません", latencyMs: 0 };
         }
         if (generation !== generationRef.current) return;
-        const roundTripMs = Math.round(performance.now() - started);
-        setEntries((es) => es.map((e) => (e.seq === seq ? { ...e, status: "done", response, roundTripMs } : e)));
+        const now = performance.now();
+        const roundTripMs = Math.round(now - started);
+        const totalMs = audio ? Math.round(now - audio.speechEndedAt) : undefined;
+        setEntries((es) => es.map((e) => (e.seq === seq ? { ...e, status: "done", response, roundTripMs, totalMs } : e)));
       }
     },
     [fault],

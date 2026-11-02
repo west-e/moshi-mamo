@@ -19,9 +19,13 @@
 - `web/` Vite + React。`#/`＝デモ（利用者画面＋開発画面）、`#/user`＝利用者画面のみ（別タブの開発画面から BroadcastChannel で同期）。
 - `shared/types.ts` 発話・判定のスキーマ（zod）。
 - `eval/` シナリオ・正解ラベル・評価スクリプト。
+- `stt/` ローカル文字起こしサーバー（faster-whisper, :8788）。音声は外部に出さず保存しない。ブラウザが無音で発話を区切って送る（`web/src/audioInput.ts`）。
+- `shared/display.ts` 判定の列から利用者画面の表示を決めるルール（画面と評価で共通）。
 
 ## コマンド
-- `npm run dev` 起動 / `npm run typecheck` 型チェック / `npm run eval -- tuning` 調整用シナリオの評価（`--keyword-only` で API なしの比較方式のみ）
+- `npm run dev` 起動（判定サーバー＋画面） / `npm run dev:all` 文字起こしサーバーも一緒に起動 / `npm run stt` 文字起こしサーバーのみ
+- `pwsh scripts/make-fake-call.ps1 <シナリオ.json> audio/<名前>.wav` 架空シナリオから架空の通話音声を作る（audio/ は Git 管理外）
+- `npm run typecheck` 型チェック / `npm run eval -- tuning` 調整用シナリオの評価（`--keyword-only` で API なしの比較方式のみ）
 - `npm run check-secrets` 追跡中の全ファイルを秘密情報チェック（コミット時は `.githooks/pre-commit` が自動実行）
 
 ## 記録

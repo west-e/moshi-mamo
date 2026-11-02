@@ -10,7 +10,9 @@
     "dev:web": "vite",
     "typecheck": "tsc --noEmit",
     "eval": "node --env-file-if-exists=.env --import tsx eval/run.ts",
-    "check-secrets": "node scripts/check-secrets.mjs --all"
+    "check-secrets": "node scripts/check-secrets.mjs --all",
+    "stt": ".venv/Scripts/python stt/server.py",
+    "dev:all": "concurrently -k -n api,web,stt -c blue,green,magenta \"npm:dev:api\" \"npm:dev:web\" \"npm:stt\""
   },
   "keywords": [],
   "author": "",

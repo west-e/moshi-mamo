@@ -156,3 +156,16 @@ body {
 .lv-caution { background: var(--caution-bg); }
 .lv-warning { background: var(--warning-bg); color: #fff; }
 .lv-unclear { background: var(--unclear-bg); }
+
+/* 音声入力 */
+.audio-controls { margin-top: 12px; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; }
+.audio-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+.file-button { padding: 6px 10px; border: 1px solid #888; border-radius: 4px; background: #f0f0f0; cursor: pointer; }
+.file-button.disabled { opacity: 0.5; cursor: not-allowed; }
+.file-button input { display: none; }
+.pill-dev { padding: 2px 10px; border-radius: 999px; background: #eee; }
+.pill-dev.on { background: #d6f5d6; }
+.consent { background: #fffbe6; border: 1px solid #e0c35a; border-radius: 6px; padding: 8px; }
+.consent p { margin: 0 0 8px; line-height: 1.6; }
+.consent button + button { margin-left: 8px; }
+.audio-error { color: #8a1d14; margin: 4px 0 0; }

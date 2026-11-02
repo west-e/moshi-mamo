@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    proxy: { "/api": "http://127.0.0.1:8787" },
+    // Windows で連続した編集の一部を取りこぼし、古い変換結果が配信されたことがあったため
+    watch: { usePolling: true, interval: 300 },
+    // /stt はローカル文字起こしサーバー（stt/server.py）。音声はこのパソコンの外に出ない
+    proxy: { "/api": "http://127.0.0.1:8787", "/stt": "http://127.0.0.1:8788" },
   },
 });

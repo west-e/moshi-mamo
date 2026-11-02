@@ -1,0 +1,15 @@
+{
+  "id": "t4-ambiguous-refund",
+  "title": "T4 曖昧: 役所を名乗る医療費の書類の連絡",
+  "utterances": [
+    { "speaker": "caller", "text": "もしもし、〇〇市役所 保険年金課の者です。" },
+    { "speaker": "user", "text": "はい、なんでしょう。" },
+    { "speaker": "caller", "text": "医療費の払い戻しの件で、以前お送りした書類がまだ返送されていないようでして。" },
+    { "speaker": "user", "text": "書類ですか。届いていたかしら。" },
+    { "speaker": "caller", "text": "見当たらないようでしたら、もう一度郵送いたします。" },
+    { "speaker": "user", "text": "そうしてもらえると助かります。" },
+    { "speaker": "caller", "text": "住所の確認だけさせてください。〇〇町三丁目でお間違いないですか。" },
+    { "speaker": "user", "text": "はい、そうです。" },
+    { "speaker": "caller", "text": "では来週中にお届けします。ご不明な点があれば、書類に書いてある窓口にお問い合わせください。" }
+  ]
+}

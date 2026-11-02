@@ -1,0 +1,15 @@
+{
+  "id": "t1-family-weekend",
+  "title": "T1 通常: 孫から週末の予定の電話",
+  "utterances": [
+    { "speaker": "caller", "text": "もしもし、おばあちゃん？ゆうただよ。" },
+    { "speaker": "user", "text": "あら、ゆうちゃん。元気にしてる？" },
+    { "speaker": "caller", "text": "うん、元気。今度の土曜日、お母さんと一緒にそっちに行こうと思ってるんだけど、大丈夫？" },
+    { "speaker": "user", "text": "大丈夫よ。お昼ごはん用意しておこうか。" },
+    { "speaker": "caller", "text": "やった。おばあちゃんの煮物が食べたいな。" },
+    { "speaker": "user", "text": "はいはい、作っておくね。何時ごろ来るの？" },
+    { "speaker": "caller", "text": "11時くらいかな。お母さんが車で行くって。" },
+    { "speaker": "user", "text": "気をつけて来てね。お母さんにもよろしく。" },
+    { "speaker": "caller", "text": "うん、じゃあ土曜日にね。" }
+  ]
+}

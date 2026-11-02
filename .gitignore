@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+# 音声・録音は公開リポジトリに含めない（架空音声を足す場合も明示的に許可してから）
+*.wav
+*.mp3
+*.m4a
+*.webm
+*.ogg
+*.flac
+# 評価の生ログ（要約はdocs/に手で残す）
+eval/results/

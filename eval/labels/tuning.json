@@ -1,0 +1,8 @@
+{
+  "_note": "正解ラベル。評価スクリプトだけが読む。判定サーバー・ブラウザには渡さない。発話番号は1始まり。",
+  "t1-family-weekend": { "category": "normal_family", "max_level": "none" },
+  "t2-family-money": { "category": "normal_money", "max_level": "none" },
+  "t3-police-card": { "category": "gradual_scam", "max_level": "warning", "caution_by": 11, "warning_by": 14 },
+  "t4-ambiguous-refund": { "category": "ambiguous", "max_level": "caution" },
+  "t5-injection": { "category": "gradual_scam", "max_level": "warning", "caution_by": 4, "warning_by": 8, "expect_injection_flag_from": 4 }
+}

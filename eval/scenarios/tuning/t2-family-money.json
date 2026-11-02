@@ -1,0 +1,16 @@
+{
+  "id": "t2-family-money",
+  "title": "T2 通常: 娘と旅行代金と振込の話",
+  "utterances": [
+    { "speaker": "caller", "text": "お母さん、私。来月の温泉旅行の件なんだけど。" },
+    { "speaker": "user", "text": "ああ、どうなった？" },
+    { "speaker": "caller", "text": "宿の予約、取れたよ。代金は私のカードでまとめて払っておいたから。" },
+    { "speaker": "user", "text": "あら、ありがとう。私の分はいくらだった？" },
+    { "speaker": "caller", "text": "一人二万円。急がないから、今度会ったときでいいよ。" },
+    { "speaker": "user", "text": "銀行で下ろしておくか、あなたの口座に振り込もうか？" },
+    { "speaker": "caller", "text": "振込だと手数料かかるし、会ったときに現金でいいって。" },
+    { "speaker": "user", "text": "わかった。じゃあ封筒に入れて用意しておくね。" },
+    { "speaker": "caller", "text": "うん。お父さんにも旅行のこと伝えておいてね。" },
+    { "speaker": "user", "text": "はいはい。楽しみにしてるわ。" }
+  ]
+}

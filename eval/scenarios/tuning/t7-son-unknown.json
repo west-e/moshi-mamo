@@ -1,0 +1,19 @@
+{
+  "id": "t7-son-unknown",
+  "title": "T7 疑わしい: 息子を名乗る（話者不明・誤認識あり）",
+  "utterances": [
+    { "speaker": "unknown", "text": "もしもし、おれだけど。" },
+    { "speaker": "unknown", "text": "あら、たけし？声がちょっと違うわね。" },
+    { "speaker": "unknown", "text": "かぜひいちゃって喉がやられてて。あと携帯なくして番号かわったから、登録しなおしといて。" },
+    { "speaker": "unknown", "text": "そうなの、大丈夫？" },
+    { "speaker": "unknown", "text": "うん。それでさ、ちょっと相談があって。会社のお金が入ったか番を電車においてわすれちゃって。" },
+    { "speaker": "unknown", "text": "ええっ、大変じゃない。" },
+    { "speaker": "unknown", "text": "今日中にうめあわせないと、くびになるかもしれない。上司にはまだ言ってなくて。" },
+    { "speaker": "unknown", "text": "いくら必要なの。" },
+    { "speaker": "unknown", "text": "三百万。おふくろにしか頼めないんだ。親父には絶対いわないで。" },
+    { "speaker": "unknown", "text": "そんな大金、銀行に行かないと。" },
+    { "speaker": "unknown", "text": "銀行で何に使うか聞かれたら、リホーム代って言っといて。本当のこと言うと止められるから。" },
+    { "speaker": "unknown", "text": "わかった……。" },
+    { "speaker": "unknown", "text": "おれは会議で行けないから、会社の後輩が家まで受け取りに行く。夕方には着くから。" }
+  ]
+}

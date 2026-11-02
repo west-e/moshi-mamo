@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AssessResponse, Speaker, Utterance } from "../../shared/types.ts";
-import { type AlertLevel, type UserView, isAlert, maxLevel, pickTopSignal, problemOf } from "./userView.ts";
+import { displayTrace } from "../../shared/display.ts";
+import { type UserView, isAlert, pickTopSignal, problemOf } from "./userView.ts";
 
 export type Fault = "none" | "network" | "invalid" | "slow";
 
@@ -74,11 +75,10 @@ export function useCallSession() {
   }, [entries]);
 
   const view: UserView = useMemo(() => {
-    let latched: AlertLevel | null = null;
-    for (const e of entries) {
-      const r = e.response;
-      if (r?.ok && r.assessment.level !== "unclear") latched = maxLevel(latched, r.assessment.level);
-    }
+    const done = entries.filter((e) => e.status === "done").sort((a, b) => a.seq - b.seq);
+    const trace = displayTrace(done.map((e) => (e.response?.ok ? e.response.assessment.level : null)));
+    const shown = trace.at(-1);
+    const latched = shown?.level ?? null;
     // 注意の根拠は、最も強い注意を出した最新の判定から取る
     let topSignal = null;
     for (const e of [...entries].reverse()) {
@@ -91,7 +91,8 @@ export function useCallSession() {
     return {
       started: utterances.length > 0,
       latched,
-      problem: latest?.response ? problemOf(latest.response) : null,
+      cleared: shown?.cleared ?? false,
+      problem: latest?.response ? problemOf(latest.response, shown?.unclear ?? false) : null,
       evaluating: entries.some((e) => e.status === "pending" && (!latest || e.seq > latest.seq)),
       topSignal,
     };

@@ -42,6 +42,14 @@ export const Assessment = z.object({
 });
 export type Assessment = z.infer<typeof Assessment>;
 
+// 判定だけモード: 説明文を書かせず、選択肢と発話番号だけを返させる（出力を短くして速くする）
+export const QuickAssessment = z.object({
+  signals: z.array(z.object({ type: SignalType, utterance_ids: z.array(z.number().int()) })),
+  injection_suspected: z.boolean(),
+  level: Level,
+});
+export type QuickAssessment = z.infer<typeof QuickAssessment>;
+
 export const AssessRequest = z.object({
   utterances: z.array(Utterance).min(1).max(300),
   // 開発画面からの障害注入（表示確認用）
@@ -54,8 +62,9 @@ export type AssessResponse =
       ok: true;
       assessment: Assessment;
       model: string;
+      preset: string;
       latencyMs: number;
-      usage: { input: number; output: number; cacheRead: number };
+      usage: { input: number; output: number; cacheRead: number; cacheWrite: number };
     }
   | {
       ok: false;

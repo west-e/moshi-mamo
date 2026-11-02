@@ -2,7 +2,9 @@ import { readdir, readFile } from "node:fs/promises";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { AssessRequest } from "../shared/types.ts";
-import { MODEL, assess } from "./assess.ts";
+import { DEFAULT_PRESET, PRESETS, assess } from "./assess.ts";
+
+const MODEL = `${PRESETS[DEFAULT_PRESET].model} (${DEFAULT_PRESET})`;
 
 const app = new Hono();
 

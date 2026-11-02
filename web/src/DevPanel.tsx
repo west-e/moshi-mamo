@@ -114,7 +114,8 @@ export function DevPanel({ session }: { session: CallSession }) {
           </ol>
           {latestOk && (
             <p className="rationale">
-              <b>最新の判定理由（発話{latest?.uttCount}まで）:</b> {latestOk.assessment.rationale}
+              <b>最新の判定理由（発話{latest?.uttCount}まで）:</b>{" "}
+              {latestOk.assessment.rationale || `（判定だけモード ${latestOk.preset} のため理由なし）`}
               {latestOk.assessment.injection_suspected && <span className="tag danger">操作の試みを検知</span>}
             </p>
           )}

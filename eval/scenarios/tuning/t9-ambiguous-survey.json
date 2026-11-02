@@ -1,0 +1,17 @@
+{
+  "id": "t9-ambiguous-survey",
+  "title": "T9 曖昧: 暮らしのアンケートを名乗り在宅や現金を尋ねる",
+  "utterances": [
+    { "speaker": "caller", "text": "お忙しいところ失礼します。〇〇区の高齢者の暮らしに関するアンケートをお願いしている者です。" },
+    { "speaker": "user", "text": "はあ、アンケートですか。" },
+    { "speaker": "caller", "text": "五分ほどで終わります。現在、お一人でお住まいでしょうか。" },
+    { "speaker": "user", "text": "ええ、主人が亡くなってからは一人です。" },
+    { "speaker": "caller", "text": "そうでしたか。日中はご自宅にいらっしゃることが多いですか。" },
+    { "speaker": "user", "text": "だいたい家にいますね。" },
+    { "speaker": "caller", "text": "最近、銀行や郵便局にはどのくらいの頻度で行かれますか。" },
+    { "speaker": "user", "text": "月に一回くらいかしら。" },
+    { "speaker": "caller", "text": "ありがとうございます。ご自宅で現金を保管されることはありますか。" },
+    { "speaker": "user", "text": "それはちょっと……。" },
+    { "speaker": "caller", "text": "失礼しました。答えにくいものは結構です。ご協力ありがとうございました。" }
+  ]
+}

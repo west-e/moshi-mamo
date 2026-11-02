@@ -1,7 +1,7 @@
 import type { Utterance } from "../shared/types.ts";
 
 // 固定の指示。会話本文は一切含めない（キャッシュが効くよう毎回同じ文字列にする）。
-export const SYSTEM_PROMPT = `あなたは、固定電話の通話を見守る補助システム「もしまも」の判定部です。
+const SYSTEM_PROMPT = `あなたは、固定電話の通話を見守る補助システム「もしまも」の判定部です。
 高齢の利用者が通話中に詐欺の被害に遭わないよう、通話の文字起こしを読み、利用者に一呼吸おいてもらうべきかを判定します。
 
 # 入力
@@ -33,12 +33,25 @@ export const SYSTEM_PROMPT = `あなたは、固定電話の通話を見守る�
 
 誤った警告が続くと利用者はこの仕組みを信頼しなくなり、見逃すとお金を失います。どちらの損失も重く見て、根拠を示せる判定をしてください。
 通話の序盤で材料が少ないだけなら none です。
+`;
 
-# 出力
+const OUTPUT_DETAILED = `# 出力
 - signals: 見つけた兆候。utterance_ids には根拠となった発話番号を入れる（存在する番号のみ）。summary は開発者向けに日本語で簡潔に。兆候がなければ空配列。
 - injection_suspected: 上記のとおり。
 - rationale: 開発者向けに、判定理由を日本語で1〜2文。
 - level: 上記の定義から1つ。`;
+
+const OUTPUT_QUICK = `# 出力
+説明文は書かず、選択肢と番号だけを返してください。
+- signals: 見つけた兆候の種類と、根拠となった発話番号（存在する番号のみ）。兆候がなければ空配列。
+- injection_suspected: 上記のとおり。
+- level: 上記の定義から1つ。`;
+
+export type OutputMode = "detailed" | "quick";
+
+export function systemPrompt(mode: OutputMode): string {
+  return SYSTEM_PROMPT + (mode === "quick" ? OUTPUT_QUICK : OUTPUT_DETAILED);
+}
 
 const SPEAKER_LABEL = { caller: "相手", user: "本人", unknown: "不明" } as const;
 

@@ -1,14 +1,16 @@
+import type { AlertLevel } from "../../shared/display.ts";
 import type { AssessResponse, Level, SignalType } from "../../shared/types.ts";
 
 // 利用者画面に出すのは、ここにある検証済みの定型文だけ。
 // モデルが生成した文章は利用者画面に出さない（短く保つため、会話中の命令文が画面に届かないようにするため）。
 
-export type AlertLevel = "none" | "caution" | "warning";
+export type { AlertLevel };
 export type Problem = "unclear" | "eval_error" | "network_error" | null;
 
 export type UserView = {
   started: boolean; // 発話が1つ以上ある
-  latched: AlertLevel | null; // この通話でこれまでに出た最も強い注意（下げない）
+  latched: AlertLevel | null; // 表示する注意（shared/display.ts のルールで決める）
+  cleared: boolean; // 注意を出した後、「なし」が続いて解除した
   problem: Problem; // 最新の判定で起きている問題
   evaluating: boolean;
   topSignal: SignalType | null;
@@ -21,18 +23,14 @@ export type Face = {
   note?: string;
 };
 
-const RANK: Record<AlertLevel, number> = { none: 0, caution: 1, warning: 2 };
-
-export function maxLevel(a: AlertLevel | null, b: AlertLevel): AlertLevel {
-  return a === null || RANK[b] > RANK[a] ? b : a;
-}
-
 export function isAlert(level: Level | AlertLevel | null): level is "caution" | "warning" {
   return level === "caution" || level === "warning";
 }
 
-export function problemOf(res: AssessResponse): Problem {
-  if (res.ok) return res.assessment.level === "unclear" ? "unclear" : null;
+// 通信・判定の失敗はすぐに出す（見守りが止まっていることを隠さない）。
+// 判定不能は続いたときだけ（shared/display.ts の unclear）。
+export function problemOf(res: AssessResponse, unclear: boolean): Problem {
+  if (res.ok) return unclear ? "unclear" : null;
   return res.kind === "network" || res.kind === "config" ? "network_error" : "eval_error";
 }
 
@@ -67,7 +65,7 @@ export function faceOf(view: UserView): Face {
     : view.problem === "eval_error" ? `確認が できませんでした。${STOPPED_NOTE}`
     : undefined;
 
-  // 一度出した注意は、その通話の間は下げない（ちらつかせない）
+  // 強い注意はその通話の間は下げない。注意は「なし」が続いたら解除する（shared/display.ts）
   if (view.latched === "warning") {
     return {
       tone: "warning",
@@ -95,6 +93,14 @@ export function faceOf(view: UserView): Face {
   }
   if (view.latched === null) {
     return { tone: "idle", headline: "確認中…", lines: ["通話の内容を 確認しています"] };
+  }
+  if (view.cleared) {
+    return {
+      tone: "calm",
+      headline: "いまは 気になる点は ありません",
+      lines: ["さきほどの話で 不安が残るなら 家族に 確かめて"],
+      note: "※ 安全を 保証するものでは ありません",
+    };
   }
   return {
     tone: "calm",

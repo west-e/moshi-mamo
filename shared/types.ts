@@ -20,9 +20,14 @@ export const SignalType = z.enum([
   "credentials", // 暗証番号・口座・個人情報の聞き出し
   "atm_operation", // ATM操作の誘導
   "bait", // 還付金・未払い・逮捕など、不安や利益で揺さぶる
+  "manipulation", // 見守りシステム・AI の判定を操作しようとする
   "other",
 ]);
 export type SignalType = z.infer<typeof SignalType>;
+
+// モデルが一覧にない種類を返しても判定全体を捨てないよう、"other" として受け取る。
+// （強い注意を出すべき場面で「確認できませんでした」になるのを防ぐ）
+const SignalTypeLenient = SignalType.catch("other");
 
 export const Level = z.enum(["none", "caution", "warning", "unclear"]);
 export type Level = z.infer<typeof Level>;
@@ -31,7 +36,7 @@ export type Level = z.infer<typeof Level>;
 export const Assessment = z.object({
   signals: z.array(
     z.object({
-      type: SignalType,
+      type: SignalTypeLenient,
       utterance_ids: z.array(z.number().int()),
       summary: z.string(),
     }),
@@ -44,7 +49,7 @@ export type Assessment = z.infer<typeof Assessment>;
 
 // 判定だけモード: 説明文を書かせず、選択肢と発話番号だけを返させる（出力を短くして速くする）
 export const QuickAssessment = z.object({
-  signals: z.array(z.object({ type: SignalType, utterance_ids: z.array(z.number().int()) })),
+  signals: z.array(z.object({ type: SignalTypeLenient, utterance_ids: z.array(z.number().int()) })),
   injection_suspected: z.boolean(),
   level: Level,
 });

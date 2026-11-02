@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Glob|Bash|PowerShell|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/guard-holdout.mjs\"",
+            "timeout": 10,
+            "statusMessage": "評価用シナリオの保護を確認中"
+          }
+        ]
+      }
+    ]
+  }
+}

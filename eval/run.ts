@@ -35,9 +35,12 @@ const PRICE: Record<string, [number, number, number]> = {
 };
 
 const args = process.argv.slice(2);
-const set = args.find((a) => !a.startsWith("--") && !args[args.indexOf(a) - 1]?.startsWith("--presets")) ?? "tuning";
-const presetArg = args[args.indexOf("--presets") + 1];
-const presets: PresetName[] = args.includes("--presets") && presetArg
+const VALUE_FLAGS = ["--presets", "--repeat"];
+const flagValue = (name: string) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
+const set = args.find((a, i) => !a.startsWith("--") && !VALUE_FLAGS.includes(args[i - 1] ?? "")) ?? "tuning";
+const repeat = Math.max(1, Number(flagValue("--repeat") ?? 1));
+const presetArg = flagValue("--presets");
+const presets: PresetName[] = presetArg
   ? presetArg.split(",").map((p) => {
       if (!(p in PRESETS)) throw new Error(`不明な設定: ${p}（${Object.keys(PRESETS).join(", ")}）`);
       return p as PresetName;
@@ -128,16 +131,17 @@ async function main() {
   const files = (await readdir(dir)).filter((f) => f.endsWith(".json")).sort();
   const scenarios: Scenario[] = await Promise.all(files.map(async (f) => JSON.parse(await readFile(new URL(f, dir), "utf8"))));
 
-  const lines: string[] = [`# 評価結果: ${set} / ${new Date().toISOString()}`, ""];
+  const total = scenarios.length * repeat;
+  const lines: string[] = [`# 評価結果: ${set} / 各シナリオ ${repeat} 回 / ${new Date().toISOString()}`, ""];
   const detail: string[] = [
-    `表示ルール「${CURRENT_POLICY}」（画面の現在の設定）での結果。`,
+    `表示ルール「${CURRENT_POLICY}」（画面の現在の設定）での結果。判定の推移は1行に1回分。`,
     "",
-    "| シナリオ | 分類 | 方式 | 最後の表示 | 初回注意 | 初回強い注意 | 判定の推移 | 画面の表示の推移 | 問題 |",
-    "|---|---|---|---|---|---|---|---|---|",
+    "| シナリオ | 分類 | 方式 | 合格 | 問題（回数） | 判定の推移 |",
+    "|---|---|---|---|---|---|",
   ];
   const perf: string[] = [
-    "| 方式 | 応答 p50 | 応答 p95 | 出力トークン平均 | 1判定の費用（概算） | エラー |",
-    "|---|---|---|---|---|---|",
+    "| 方式 | 判定回数 | 応答 p50 | 応答 p95 | 出力トークン平均 | 1判定の費用（概算） | エラー（種類） |",
+    "|---|---|---|---|---|---|---|",
   ];
   const summary: string[] = [
     "| 方式 | 表示ルール | 合格 | 誤警告・過剰 | 正常な電話での一時的な注意 | 見逃し・遅れ | 詐欺で途中解除 | 操作未検知 |",
@@ -145,15 +149,19 @@ async function main() {
   ];
 
   // 設定は順番に（同時に流すと遅延の測定が互いに影響するため）、シナリオ同士は並列、
-  // シナリオ内の発話は逐次（実際の通話と同じ順序）
+  // シナリオ内の発話は逐次（実際の通話と同じ順序）。同じシナリオを repeat 回流して揺れを見る。
   for (const judge of judges) {
-    const runs = await Promise.all(scenarios.map(async (s) => ({ s, run: await runScenario(s, judge) })));
-    const steps = runs.flatMap((r) => r.run.steps);
-    const errors = runs.reduce((a, r) => a + r.run.errors, 0);
+    const trials: { s: Scenario; run: Awaited<ReturnType<typeof runScenario>> }[][] = [];
+    for (let t = 0; t < (judge === "keyword" ? 1 : repeat); t++) {
+      trials.push(await Promise.all(scenarios.map(async (s) => ({ s, run: await runScenario(s, judge) }))));
+    }
+    const all = trials.flat();
+    const n = judge === "keyword" ? scenarios.length : total; // 単語一致は毎回同じ結果なので1回
 
     for (const [policy, clearAfter] of Object.entries(POLICIES)) {
       const count: Record<ProblemKind | "ok" | "transient", number> = { ok: 0, over: 0, miss: 0, gap: 0, injection: 0, transient: 0 };
-      for (const { s, run } of runs) {
+      const perScenario = new Map<string, { ok: number; problems: Map<string, number>; traces: string[] }>();
+      for (const { s, run } of all) {
         const label = labels[s.id];
         if (!label) throw new Error(`ラベルがありません: ${s.id}`);
         const display = displayTrace(run.steps.map((st) => rawLevel(st.raw)), clearAfter);
@@ -161,20 +169,31 @@ async function main() {
         if (!sc.problems.length) count.ok++;
         if (sc.transient) count.transient++;
         for (const kind of new Set(sc.problems.map((p) => p.kind))) count[kind]++;
-        if (policy === CURRENT_POLICY) {
-          const rawTrace = run.steps.map((st) => SYMBOL[st.raw] ?? "×").join("");
-          const shownTrace = display.map((d) => (d.level ? SYMBOL[d.level] : "　")).join("");
-          detail.push(`| ${s.id} | ${label.category} | ${judge} | ${sc.final} | ${sc.firstCaution ?? "-"} | ${sc.firstWarning ?? "-"} | \`${rawTrace}\` | \`${shownTrace}\` | ${sc.problems.map((p) => p.text).join(", ") || "OK"} |`);
+        const agg = perScenario.get(s.id) ?? { ok: 0, problems: new Map<string, number>(), traces: [] };
+        if (!sc.problems.length) agg.ok++;
+        for (const p of sc.problems) agg.problems.set(p.text, (agg.problems.get(p.text) ?? 0) + 1);
+        agg.traces.push(run.steps.map((st) => SYMBOL[st.raw] ?? "×").join(""));
+        perScenario.set(s.id, agg);
+      }
+      summary.push(`| ${judge} | ${policy} | ${count.ok}/${n} | ${count.over} | ${count.transient} | ${count.miss} | ${count.gap} | ${count.injection} |`);
+      if (policy === CURRENT_POLICY) {
+        for (const s of scenarios) {
+          const agg = perScenario.get(s.id)!;
+          const problems = [...agg.problems].map(([text, c]) => `${text}×${c}`).join(", ") || "-";
+          detail.push(`| ${s.id} | ${labels[s.id]!.category} | ${judge} | ${agg.ok}/${agg.traces.length} | ${problems} | ${agg.traces.map((t) => `\`${t}\``).join("<br>")} |`);
         }
       }
-      summary.push(`| ${judge} | ${policy} | ${count.ok}/${scenarios.length} | ${count.over} | ${count.transient} | ${count.miss} | ${count.gap} | ${count.injection} |`);
     }
 
     if (judge !== "keyword") {
+      const steps = all.flatMap((r) => r.run.steps);
       const lat = steps.map((s) => s.latencyMs);
       const avgOut = Math.round(steps.reduce((a, s) => a + s.outTokens, 0) / steps.length);
       const avgCost = steps.reduce((a, s) => a + s.costUsd, 0) / steps.length;
-      perf.push(`| ${judge} | ${sec(pct(lat, 50))} | ${sec(pct(lat, 95))} | ${avgOut} | $${avgCost.toFixed(4)} | ${errors} |`);
+      const errorKinds = new Map<string, number>();
+      for (const s of steps) if (s.raw.startsWith("error:")) errorKinds.set(s.raw, (errorKinds.get(s.raw) ?? 0) + 1);
+      const errorText = [...errorKinds].map(([k, c]) => `${k.slice(6)}×${c}`).join(", ") || "0";
+      perf.push(`| ${judge} | ${steps.length} | ${sec(pct(lat, 50))} | ${sec(pct(lat, 95))} | ${avgOut} | $${avgCost.toFixed(4)} | ${errorText} |`);
     }
     console.error(`done: ${judge}`);
   }

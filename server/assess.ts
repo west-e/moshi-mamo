@@ -111,7 +111,9 @@ export async function assess(
     if (error instanceof Anthropic.APIError) {
       return { ok: false, kind: "network", message: `Claude API エラー ${error.status}`, latencyMs: elapsed() };
     }
-    // スキーマ不一致などの解析失敗
+    // スキーマ不一致などの解析失敗。原因の調査用に種類だけをログに出す（会話本文は出さない）
+    const detail = (error instanceof Error ? `${error.name}: ${error.message}` : String(error)).replace(/\s+/g, " ").slice(0, 600);
+    console.error(`[assess] invalid output (${presetName}): ${detail}`);
     return { ok: false, kind: "invalid", message: "判定を読み取れませんでした", latencyMs: elapsed() };
   }
 }

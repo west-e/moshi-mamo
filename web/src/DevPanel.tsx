@@ -15,6 +15,7 @@ const SIGNAL_LABEL: Record<string, string> = {
   credentials: "暗証番号等",
   atm_operation: "ATM誘導",
   bait: "不安/利益",
+  manipulation: "見守りへの操作",
   other: "その他",
 };
 

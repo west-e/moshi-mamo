@@ -157,6 +157,13 @@ body {
 .lv-warning { background: var(--warning-bg); color: #fff; }
 .lv-unclear { background: var(--unclear-bg); }
 
+/* 広い画面（デモ動画の撮影など）では開発画面の文字を大きくする */
+@media (min-width: 1600px) {
+  .dev-panel { font-size: 17px; }
+  .dev-panel h3 { font-size: 17px; }
+  .tag { font-size: 14px; }
+}
+
 /* 音声入力 */
 .audio-controls { margin-top: 12px; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; }
 .audio-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }

@@ -23,16 +23,17 @@ app.post("/api/assess", async (c) => {
 
 app.get("/api/info", (c) => c.json({ model: MODEL, keyConfigured: Boolean(process.env.ANTHROPIC_API_KEY) }));
 
-// 開発画面で流す調整用シナリオ（発話のみ）。正解ラベルと評価用シナリオは渡さない。
+// 開発画面で流すデモ用・調整用シナリオ（発話のみ）。正解ラベルと評価用シナリオは渡さない。
 app.get("/api/scenarios", async (c) => {
-  const dir = new URL("../eval/scenarios/tuning/", import.meta.url);
-  const files = (await readdir(dir)).filter((f) => f.endsWith(".json")).sort();
-  const scenarios = await Promise.all(
-    files.map(async (f) => {
+  const scenarios = [];
+  for (const set of ["demo", "tuning"]) {
+    const dir = new URL(`../eval/scenarios/${set}/`, import.meta.url);
+    const files = (await readdir(dir)).filter((f) => f.endsWith(".json")).sort();
+    for (const f of files) {
       const { id, title, utterances } = JSON.parse(await readFile(new URL(f, dir), "utf8"));
-      return { id, title, utterances };
-    }),
-  );
+      scenarios.push({ id, title, utterances });
+    }
+  }
   return c.json(scenarios);
 });
 

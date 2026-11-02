@@ -1,0 +1,5 @@
+{
+  "_note": "デモ動画用の架空シナリオの期待値。精度の評価には使わない（撮影前のリハーサル用）。",
+  "d1-family-money": { "category": "normal_money", "max_level": "none" },
+  "d2-fake-police": { "category": "gradual_scam", "max_level": "warning", "caution_by": 5, "warning_by": 7 }
+}

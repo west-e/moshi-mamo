@@ -138,5 +138,8 @@ pwsh scripts/make-fake-call.ps1 eval/scenarios/tuning/t7-son-unknown.json audio/
 - 判定のため、会話の文字は Anthropic の API に送られます。
 - パソコンとインターネット接続が必要です。小型端末化は今後の課題です。
 
+## ライセンス
+[MIT License](LICENSE)
+
 ## 公開リポジトリに含めていないもの
 API キー（`.env`）、音声ファイル、実在の通話・個人情報は含めていません。シナリオはすべて架空で、固有名は「〇〇」で伏せています。コミット時に `scripts/check-secrets.mjs` が自動で検査します。

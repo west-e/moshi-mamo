@@ -73,7 +73,7 @@ export function DevPanel({ session }: { session: CallSession }) {
 
       <div className="dev-controls">
         <select value={scenarioId} onChange={(e) => { reset(); setAutoplay(false); setScenarioId(e.target.value); }}>
-          <option value="">シナリオを選択（デモ用・調整用、すべて架空）</option>
+          <option value="">シナリオを選択（デモ用・練習用・調整用、すべて架空）</option>
           {scenarios.map((s) => (
             <option key={s.id} value={s.id}>{s.title}</option>
           ))}

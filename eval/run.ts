@@ -1,5 +1,5 @@
 // 使い方:
-//   npm run eval -- tuning                         既定の設定で調整用シナリオを評価（評価用は holdout）
+//   npm run eval -- tuning                         既定の設定で調整用シナリオを評価（評価用は holdout、練習用は practice）
 //   npm run eval -- tuning --presets a,b,c         複数の設定を比べる（server/assess.ts の PRESETS）
 //   npm run eval -- tuning --keyword-only          API を呼ばず、単語一致方式だけ
 // シナリオを発話ごとに逐次判定し、正解ラベルと突き合わせる。

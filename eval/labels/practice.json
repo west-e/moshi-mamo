@@ -1,0 +1,59 @@
+{
+  "_note": "練習用（Claude が書いた架空の台本）の期待値。判定を流す前に決めた。マイクの練習・調整用で、精度の評価には使わない。判定サーバー・ブラウザには渡さない。発話番号は1始まり。",
+  "p01-grandson-lawyer": {
+    "category": "gradual_scam",
+    "max_level": "warning",
+    "caution_by": 8,
+    "warning_by": 11
+  },
+  "p02-police-video": {
+    "category": "gradual_scam",
+    "max_level": "warning",
+    "caution_by": 5,
+    "warning_by": 12
+  },
+  "p03-card-swap": {
+    "category": "gradual_scam",
+    "max_level": "warning",
+    "caution_by": 5,
+    "warning_by": 9
+  },
+  "p04-refund-atm": {
+    "category": "gradual_scam",
+    "max_level": "warning",
+    "caution_by": 5,
+    "warning_by": 9
+  },
+  "p05-robocall-police": {
+    "category": "gradual_scam",
+    "max_level": "warning",
+    "caution_by": 5,
+    "warning_by": 11
+  },
+  "p06-fake-bill": {
+    "category": "gradual_scam",
+    "max_level": "warning",
+    "caution_by": 5,
+    "warning_by": 10
+  },
+  "p07-police-lost-wallet": {
+    "category": "normal_money",
+    "max_level": "none"
+  },
+  "p08-card-company-alert": {
+    "category": "normal_money",
+    "max_level": "none"
+  },
+  "p09-grandson-new-number": {
+    "category": "normal_family",
+    "max_level": "none"
+  },
+  "p10-clinic-robocall": {
+    "category": "normal_money",
+    "max_level": "none"
+  },
+  "p11-ambiguous-family-info": {
+    "category": "ambiguous",
+    "max_level": "caution"
+  }
+}

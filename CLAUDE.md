@@ -3,7 +3,7 @@
 固定電話の通話から特殊詐欺の兆候を捉え、通話中に利用者へ注意を促すプロダクト（Claude ハッカソン用、締切 2026-11-08 20:00 JST）。
 
 ## 守ること
-- 会話本文を永続保存しない。サーバーログは件数・判定・応答時間のみ。ブラウザの localStorage にも保存しない。
+- 会話本文は初期設定で保存しない。利用者が「通話を記録」を選んだときだけ、このパソコンの `records/`（Git 管理外）に保存し、外部に送らない。サーバーログは件数・判定・応答時間のみ。ブラウザの localStorage にも保存しない。
 - APIキーはサーバー側の環境変数（`.env`、Git管理外）だけで扱う。ブラウザのコードやコミットに含めない。
 - 判定（`server/assess.ts`）には「その時点までの発話」だけを渡す。未来の発話・シナリオの正解ラベル（`eval/labels/`）を判定側に渡さない。
 - 評価用シナリオ（`eval/scenarios/holdout/`）はプロンプト調整中に読まない・調整に使わない。調整は `tuning/` だけで行う。
@@ -28,6 +28,7 @@
 - `pwsh scripts/make-fake-call.ps1 <シナリオ.json> audio/<名前>.wav` 架空シナリオから架空の通話音声を作る（audio/ は Git 管理外）
 - `npm run typecheck` 型チェック / `npm run eval -- tuning` 調整用シナリオの評価（`--keyword-only` で API なしの比較方式のみ。`practice` は Claude が書いた練習用）
 - `node scripts/reading-sheet.mjs demo practice > docs/reading-sheet.md` 2人で読み上げる台本を作り直す
+- `npm run voices -- call <シナリオ.json> audio/<名前>.wav` 架空の通話音声を Gemini TTS で2人の声にして作る（送るのは架空の台本だけ）。警告は画面とチャイムだけで、文の読み上げはしない
 - `npm run check-secrets` 追跡中の全ファイルを秘密情報チェック（コミット時は `.githooks/pre-commit` が自動実行）
 
 ## 記録

@@ -4,7 +4,7 @@ import { UserScreen } from "./UserScreen.tsx";
 import { VIEW_CHANNEL, useCallSession } from "./useCallSession.ts";
 import type { UserView } from "./userView.ts";
 
-const EMPTY_VIEW: UserView = { started: false, latched: null, cleared: false, problem: null, evaluating: false, topSignal: null };
+const EMPTY_VIEW: UserView = { started: false, latched: null, cleared: false, problem: null, evaluating: false, topSignal: null, recording: false, directive: false };
 
 function useRoute() {
   const [hash, setHash] = useState(location.hash);

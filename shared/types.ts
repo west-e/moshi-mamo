@@ -55,6 +55,14 @@ export const QuickAssessment = z.object({
 });
 export type QuickAssessment = z.infer<typeof QuickAssessment>;
 
+// 利用者が「記録する」を選んだ通話だけ、このパソコンの records/ に保存する（初期設定はオフ・外部には送らない）
+export const RecordRequest = z.object({
+  callId: z.string().regex(/^\d{8}-\d{6}$/), // 通話を始めた日時（ファイル名に使うので形を固定する）
+  utterances: z.array(Utterance).min(1).max(300),
+  levels: z.array(z.object({ uttCount: z.number().int().positive(), level: Level.nullable() })).max(300),
+});
+export type RecordRequest = z.infer<typeof RecordRequest>;
+
 export const AssessRequest = z.object({
   utterances: z.array(Utterance).min(1).max(300),
   // 開発画面からの障害注入（表示確認用）

@@ -1,7 +1,7 @@
-import { readdir, readFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { AssessRequest } from "../shared/types.ts";
+import { AssessRequest, RecordRequest } from "../shared/types.ts";
 import { DEFAULT_PRESET, PRESETS, assess } from "./assess.ts";
 
 const MODEL = `${PRESETS[DEFAULT_PRESET].model} (${DEFAULT_PRESET})`;
@@ -19,6 +19,19 @@ app.post("/api/assess", async (c) => {
     `[assess] n=${utterances.length} ${result.ok ? `level=${result.assessment.level}` : `error=${result.kind}`} ${result.latencyMs}ms`,
   );
   return c.json(result);
+});
+
+// 利用者が「記録する」を選んだ通話だけ、このパソコンの records/ に保存する（初期設定はオフ・外部には送らない・Git 管理外）。
+// 同じ通話は上書きする。ログには本文を出さない。
+const RECORDS = new URL("../records/", import.meta.url);
+app.post("/api/records", async (c) => {
+  const parsed = RecordRequest.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) return c.json({ error: "invalid request" }, 400);
+  const { callId, utterances, levels } = parsed.data;
+  await mkdir(RECORDS, { recursive: true });
+  await writeFile(new URL(`${callId}.json`, RECORDS), JSON.stringify({ callId, savedAt: new Date().toISOString(), utterances, levels }, null, 1));
+  console.log(`[record] call=${callId} n=${utterances.length}`);
+  return c.json({ ok: true });
 });
 
 app.get("/api/info", (c) => c.json({ model: MODEL, keyConfigured: Boolean(process.env.ANTHROPIC_API_KEY) }));

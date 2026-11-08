@@ -64,6 +64,11 @@ def read_wav(data: bytes) -> np.ndarray:
     return pcm.astype(np.float32) / 32768.0
 
 
+# 特殊詐欺の電話によく出る言葉。聞き間違い（例: 示談金→自弾金）を減らすため、モデルにあらかじめ示す。
+# 会話を外に出すものではない。普通の電話でこの言葉に引っぱられて誤認識しないかは、デモ1（家族の電話）で確かめる。
+HOTWORDS = "示談金 暗証番号 キャッシュカード 還付金 口座 振り込み 未払い"
+
+
 def transcribe(audio: np.ndarray) -> dict:
     started = time.perf_counter()
     with LOCK:
@@ -73,6 +78,7 @@ def transcribe(audio: np.ndarray) -> dict:
             beam_size=1,
             condition_on_previous_text=False,
             without_timestamps=True,
+            hotwords=HOTWORDS,
         )
         texts = [s.text.strip() for s in segments if s.no_speech_prob < 0.6]
     text = "".join(texts).strip()

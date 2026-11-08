@@ -13,6 +13,8 @@ const ALLOWED_NAME = [/(^|\/)\.env\.example$/];
 const SECRET = [
   /sk-ant-[A-Za-z0-9_-]{16,}/, // Anthropic APIキー
   /ANTHROPIC_API_KEY[ \t]*=[ \t]*["']?[A-Za-z0-9_-]{8,}/, // キーの代入（空の代入は許す）
+  /AIza[0-9A-Za-z_-]{35}/, // Google（Gemini）APIキー
+  /GEMINI_API_KEY[ \t]*=[ \t]*["']?[A-Za-z0-9_-]{8,}/,
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
 ];
 

@@ -21,7 +21,7 @@ const SIGNAL_LABEL: Record<string, string> = {
 
 // 開発・デモ用画面。模擬入力であることを常に明示する。
 export function DevPanel({ session }: { session: CallSession }) {
-  const { utterances, entries, latest, view, fault, setFault, addUtterance, reset } = session;
+  const { utterances, entries, latest, view, fault, setFault, addUtterance, reset, recording, setRecording, recordState, directive, setDirective } = session;
   const [info, setInfo] = useState<{ model: string; keyConfigured: boolean } | null>(null);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [scenarioId, setScenarioId] = useState("");
@@ -91,6 +91,13 @@ export function DevPanel({ session }: { session: CallSession }) {
             <option value="invalid">判定不能な応答</option>
             <option value="slow">8秒遅延</option>
           </select>
+        </label>
+        <label title="強い注意のとき「いますぐ 電話を 切ってください」と、次にすることをはっきり示します（初期設定はオフ）">
+          <input type="checkbox" checked={directive} onChange={(e) => setDirective(e.target.checked)} /> 強い注意で、はっきり指示する
+        </label>
+        <label title="このパソコンの records/ にだけ保存します（外部には送りません。初期設定はオフ）">
+          <input type="checkbox" checked={recording} onChange={(e) => setRecording(e.target.checked)} /> 通話を記録（このパソコンだけ）
+          {recording && recordState === "error" && <span className="audio-error"> 保存できませんでした</span>}
         </label>
       </div>
 

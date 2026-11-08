@@ -15,6 +15,8 @@ export type UserView = {
   problem: Problem; // 最新の判定で起きている問題
   evaluating: boolean;
   topSignal: SignalType | null;
+  recording: boolean; // 利用者が「記録する」を選んでいる（このパソコンの中だけに保存）
+  directive: boolean; // 家族の設定: 強い注意のとき、次の行動をはっきり指示する（パニックの中でも迷わないように）
 };
 
 export type Face = {
@@ -67,6 +69,15 @@ export function faceOf(view: UserView): Face {
     : undefined;
 
   // 強い注意はその通話の間は下げない。注意は「なし」が続いたら解除する（shared/display.ts）
+  if (view.latched === "warning" && view.directive) {
+    // 「詐欺です」とは断定せず、するべきことを1つずつ示す。電話を切る・連絡するのは本人（自動ではしない）
+    return {
+      tone: "warning",
+      headline: "いますぐ 電話を 切ってください",
+      lines: ["家族に いつもの番号で かけ直して 確かめましょう", "または 警察の相談窓口 #9110 へ"],
+      note: stopped,
+    };
+  }
   if (view.latched === "warning") {
     return {
       tone: "warning",

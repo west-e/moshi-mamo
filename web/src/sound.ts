@@ -1,6 +1,6 @@
 import type { AlertLevel } from "./userView.ts";
 
-// 音は Web Audio で合成し、読み上げは固定文のみ（会話本文は読み上げない）。
+// 音は Web Audio で合成したチャイムだけ。文の読み上げはしない（通話の相手の声と重なって聞き取りにくくなるため）。
 let ctx: AudioContext | null = null;
 
 export function enableSound(): boolean {
@@ -28,12 +28,7 @@ function tone(freq: number, start: number, duration: number, gain = 0.25) {
   osc.stop(t + duration);
 }
 
-const SPOKEN: Record<"caution" | "warning", string> = {
-  caution: "ちょっと待ってください。電話を切っても大丈夫です。家族に確かめてから決めましょう。",
-  warning: "詐欺のおそれがあります。電話を切っても大丈夫です。お金やカードは渡さず、家族に相談してください。",
-};
-
-export function playAlert(level: Exclude<AlertLevel, "none">, speak: boolean) {
+export function playAlert(level: Exclude<AlertLevel, "none">) {
   if (!ctx) return;
   if (level === "caution") {
     tone(660, 0, 0.35);
@@ -43,11 +38,5 @@ export function playAlert(level: Exclude<AlertLevel, "none">, speak: boolean) {
       tone(880, i * 0.5, 0.25, 0.35);
       tone(660, i * 0.5 + 0.25, 0.25, 0.35);
     }
-  }
-  if (speak && "speechSynthesis" in window) {
-    const u = new SpeechSynthesisUtterance(SPOKEN[level]);
-    u.lang = "ja-JP";
-    u.rate = 0.9;
-    setTimeout(() => speechSynthesis.speak(u), level === "warning" ? 1600 : 1000);
   }
 }

@@ -20,7 +20,15 @@ export type AudioMeta = { sttMs: number; speechEndedAt: number };
 
 export const VIEW_CHANNEL = "moshi-mamo-view";
 
-// 通話1本ぶんの状態。会話本文はメモリ上だけに置き、保存しない。
+// 通話を始めた日時（記録のファイル名）
+function stamp() {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+// 通話1本ぶんの状態。会話本文はメモリ上に置き、初期設定では保存しない。
+// 利用者が「記録する」を選んだときだけ、判定サーバー経由でこのパソコンの records/ に保存する（ブラウザには残さない）。
 export function useCallSession() {
   const [utterances, setUtterances] = useState<Utterance[]>([]);
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -28,6 +36,10 @@ export function useCallSession() {
   const seqRef = useRef(0);
   const generationRef = useRef(0); // リセット後に古い応答が混ざらないように
   const utterancesRef = useRef<Utterance[]>([]);
+  const [recording, setRecording] = useState(false); // 初期設定はオフ
+  const [directive, setDirective] = useState(false); // 強い注意のとき、はっきり指示する（家族の設定。初期設定はオフ）
+  const [recordState, setRecordState] = useState<"idle" | "saved" | "error">("idle");
+  const callIdRef = useRef<string | null>(null);
 
   const addUtterance = useCallback(
     (speaker: Speaker, text: string, audio?: AudioMeta) => {
@@ -36,6 +48,7 @@ export function useCallSession() {
       const generation = generationRef.current;
       const seq = ++seqRef.current;
       const prev = utterancesRef.current;
+      if (prev.length === 0) callIdRef.current = stamp();
       const next = [...prev, { id: prev.length + 1, speaker, text: trimmed.slice(0, 500) }];
       utterancesRef.current = next;
       setUtterances(next);
@@ -70,9 +83,30 @@ export function useCallSession() {
   const reset = useCallback(() => {
     generationRef.current++;
     utterancesRef.current = [];
+    callIdRef.current = null;
     setUtterances([]);
     setEntries([]);
+    setRecordState("idle");
   }, []);
+
+  // 「記録する」がオンのときだけ、発話や判定が増えるたびに同じファイルへ上書き保存する
+  useEffect(() => {
+    const callId = callIdRef.current;
+    if (!recording || !callId || utterances.length === 0) return;
+    const levels = entries
+      .filter((e) => e.status === "done")
+      .map((e) => ({ uttCount: e.uttCount, level: e.response?.ok ? e.response.assessment.level : null }));
+    const ctrl = new AbortController();
+    fetch("/api/records", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ callId, utterances, levels }),
+      signal: ctrl.signal,
+    })
+      .then((r) => setRecordState(r.ok ? "saved" : "error"))
+      .catch(() => { if (!ctrl.signal.aborted) setRecordState("error"); });
+    return () => ctrl.abort();
+  }, [recording, utterances, entries]);
 
   // 表示に使うのは「完了した中で最も新しい判定」。遅れて届いた古い応答で上書きしない。
   const latest = useMemo(() => {
@@ -102,8 +136,10 @@ export function useCallSession() {
       problem: latest?.response ? problemOf(latest.response, shown?.unclear ?? false) : null,
       evaluating: entries.some((e) => e.status === "pending" && (!latest || e.seq > latest.seq)),
       topSignal,
+      recording,
+      directive,
     };
-  }, [entries, latest, utterances.length]);
+  }, [entries, latest, utterances.length, recording, directive]);
 
   // 別タブの利用者画面（#/user）へ表示状態だけを送る。会話本文は送らない。
   const channelRef = useRef<BroadcastChannel | null>(null);
@@ -115,7 +151,7 @@ export function useCallSession() {
     channelRef.current?.postMessage(view);
   }, [view]);
 
-  return { utterances, entries, latest, view, fault, setFault, addUtterance, reset };
+  return { utterances, entries, latest, view, fault, setFault, addUtterance, reset, recording, setRecording, recordState, directive, setDirective };
 }
 
 export type CallSession = ReturnType<typeof useCallSession>;
